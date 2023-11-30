@@ -1,6 +1,6 @@
 import logging
 import azure.functions as func
-import openai
+from openai import AzureOpenAI
 import os
 import json
 from azure.kusto.data import KustoClient, KustoConnectionStringBuilder
@@ -16,12 +16,11 @@ KUSTO_CLUSTER = os.environ.get('KUSTO_CLUSTER')  # Set as environment variable i
 KUSTO_DATABASE = os.environ.get('KUSTO_DATABASE')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
-# Configure OpenAI settings
-openai.api_type = "azure"
-openai.api_key = OPENAI_API_KEY  # Your OpenAI API key
-openai.api_base = os.environ.get('OPENAI_API_Endpoint')  # Your OpenAI resource endpoint
-openai.api_version = os.environ.get('OPENAI_API_Version')
-
+client = AzureOpenAI(
+        api_key = OPENAI_API_KEY,  # Your OpenAI API key
+        azure_endpoint= os.environ.get('OPENAI_API_Endpoint'),  # Your OpenAI resource endpoint
+        api_version = os.environ.get('OPENAI_API_Version')
+)
 def run_openai(prompt, engine=GPT_ENGINE):
     """Generate Kusto Query Language (KQL) queries using OpenAI's GPT-4.0 model."""
     system_prompt = f"""You are a helpful assistant that generates valid Kusto queries, make use of three table Event, Heartbeat and Perf, all at once or silo as per need. Generate one single query, no additional explanation as the query will be directly executed in the Kusto explorer through, so additional comment or invalid character might result in error message
@@ -41,13 +40,30 @@ Perf
 // etc..."""
 
     full_prompt = f"{system_prompt}\n{prompt}"
-    response = openai.Completion.create(
-        engine=engine,
-        prompt=full_prompt,
-        temperature=0.7,
-        max_tokens=150
+    response = client.chat.completions.create(
+        model=engine,
+        messages=[{"role": "system", "content": f"""You are a helpful assistant that generates valid Kusto queries, make use of three table Event, Heartbeat and Perf, all at once or silo as per need. Generate one single query, no additional explanation as the query will be directly executed in the Kusto explorer through, so additional comment or invalid character might result in error message
+                      // List all known computers that didn't send a heartbeat in the last 24 hours from heartbeat table
+                    Heartbeat
+                    | summarize LastHeartbeat=max(TimeGenerated) by Computer
+                    | where LastHeartbeat < ago(24h)
+
+                    // Top 10 computers with the highest disk space from Perf table
+                    // Show the top 10 computers with the highest available disk space from Perf table
+                    Perf
+                    | where CounterName == "Free Megabytes" and InstanceName == "_Total"
+                    | summarize arg_max(TimeGenerated, *) by Computer
+                    | top 10 by CounterValue
+
+                    // Top 10 Computers with Max CPU usage from Perf table
+                    // etc...
+                    """},
+                  {"role": "user", "content": prompt}],
+        temperature=0.7
     )
-    return response.choices[0].text
+    message_content= response.choices[0].message.content
+    return message_content
+
 
 def execute_kusto_query(kusto_cluster, kusto_database, query):
     """Executes a KQL query on the specified Kusto Cluster and Database."""
