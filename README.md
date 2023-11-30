@@ -1,6 +1,6 @@
 # Documentation
 
-The blog post that accompanies this repository 
+The blog post that accompanies this repository [can be found here on my website](https://benalexkeen.com/deploying-streamlit-applications-with-azure-app-services/).
 
 # Deployment
 

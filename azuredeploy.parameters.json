@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.1",
     "parameters": {
         "webAppName": {
-            "value": "azseot3amakql"
+            "value": "streamlit-azure-app-services-example"
         },
         "sku": {
             "value": "B1"
@@ -12,7 +12,7 @@
             "value": "PYTHON|3.7"
         },
         "repoUrl": {
-            "value": "https://github.com/gittaqui/cautious-happiness.git"
+            "value": "https://github.com/benalexkeen/streamlit-azure-app-services.git"
         },
         "repoBranch": {
             "value": "main"
