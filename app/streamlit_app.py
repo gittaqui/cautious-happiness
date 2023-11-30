@@ -19,8 +19,8 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 # Configure OpenAI settings
 openai.api_type = "azure"
 openai.api_key = OPENAI_API_KEY  # Your OpenAI API key
-openai.api_base = "https://mdee-seot3-aoai.openai.azure.com/"  # Your OpenAI resource endpoint
-openai.api_version = "2023-06-01-preview"
+openai.api_base = os.environ.get('OPENAI_API_Endpoint')  # Your OpenAI resource endpoint
+openai.api_version = os.environ.get('OPENAI_API_Version')
 
 def run_openai(prompt, engine=GPT_ENGINE):
     """Generate Kusto Query Language (KQL) queries using OpenAI's GPT-4.0 model."""
