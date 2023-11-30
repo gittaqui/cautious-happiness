@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 
 # Set your GPT Engine, Kusto Cluster, and Database here
 GPT_ENGINE = "gpt-4-32k"
-KUSTO_CLUSTER = "https://ade.loganalytics.io/subscriptions/d2eae3d2-ea7d-4bbc-872a-aa83fba4fec1/resourcegroups/azusw3seot3amarg/providers/microsoft.operationalinsights/workspaces/azusw3seot3dcr02"  # Add your Kusto cluster URL here
-KUSTO_DATABASE = "azusw3seot3dcr02"
+KUSTO_CLUSTER = os.environ.get('KUSTO_CLUSTER')  # Set as environment variable in Azure
+KUSTO_DATABASE = os.environ.get('KUSTO_DATABASE')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 # Configure OpenAI settings
