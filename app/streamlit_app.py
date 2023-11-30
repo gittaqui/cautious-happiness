@@ -11,7 +11,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Set your GPT Engine, Kusto Cluster, and Database here
-GPT_ENGINE = "gpt-4-32k"
+GPT_ENGINE = os.environ.get('OPENAI_API_Engine')
 KUSTO_CLUSTER = os.environ.get('KUSTO_CLUSTER')  # Set as environment variable in Azure
 KUSTO_DATABASE = os.environ.get('KUSTO_DATABASE')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
