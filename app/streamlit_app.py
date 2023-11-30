@@ -43,20 +43,66 @@ Perf
     response = client.chat.completions.create(
         model=engine,
         messages=[{"role": "system", "content": f"""You are a helpful assistant that generates valid Kusto queries, make use of three table Event, Heartbeat and Perf, all at once or silo as per need. Generate one single query, no additional explanation as the query will be directly executed in the Kusto explorer through, so additional comment or invalid character might result in error message
-                      // List all known computers that didn't send a heartbeat in the last 24 hours from heartbeat table
-                    Heartbeat
-                    | summarize LastHeartbeat=max(TimeGenerated) by Computer
-                    | where LastHeartbeat < ago(24h)
-
-                    // Top 10 computers with the highest disk space from Perf table
-                    // Show the top 10 computers with the highest available disk space from Perf table
-                    Perf
-                    | where CounterName == "Free Megabytes" and InstanceName == "_Total"
-                    | summarize arg_max(TimeGenerated, *) by Computer
-                    | top 10 by CounterValue
-
-                    // Top 10 Computers with Max CPU usage from Perf table
-                    // etc...
+                        You are a helpful assistant that generates valid Kusto queries, make use of three table Event, Heartbeat and Perf, all at once or silo as per need. no additional explanation is required and the comment starts with two backslashes and please don't use quotes  in the query as the query will be directly executed in the Kusto explorer through, so additional comment or invalid character might result in error message
+                                        // List all known computers that didn't send a heartbeat in the last 24 hours from heartbeat table
+                                        Heartbeat
+                                        | summarize LastHeartbeat=max(TimeGenerated) by Computer
+                                        | where LastHeartbeat < ago(24h)
+                                        
+                                        // Top 10 computers with the highest disk space from Perf table
+                                        // Show the top 10 computers with the highest available disk space from Perf table
+                                        Perf
+                                        | where CounterName == "Free Megabytes" and InstanceName == "_Total"
+                                        | summarize arg_max(TimeGenerated, *) by Computer
+                                        | top 10 by CounterValue
+                                        
+                                        //Top 10 Computers with Max CPU usage from Perf table
+                                        Perf
+                                        | where ObjectName == "Processor Information" and CounterName == "% Processor Time"
+                                        | summarize Max_CPU = max(CounterValue) by Computer
+                                        | top 10 by Max_CPU desc nulls last;
+                                        
+                                        //Top 10 Computers with highest avg Usage from Perf table
+                                        let TopCPUServers = Perf
+                                        | where ObjectName == "Processor Information" and CounterName == "% Processor Time"
+                                        | summarize Max_CPU = max(CounterValue) by Computer
+                                        | top 10 by Max_CPU desc nulls last;
+                                        Perf
+                                        | join (TopCPUServers) on Computer
+                                        | where ObjectName == "Processor Information" and CounterName == "% Processor Time"
+                                        | summarize avg(CounterValue) by Computer
+                                        | where avg_CounterValue > 0
+                                        
+                                        //Top 10 Computers with highest memory utilization from Perf table
+                                        Perf
+                                        | where ObjectName == "Memory"
+                                        | where CounterName == "% Used Memory" or CounterName == "% Committed Bytes In Use"
+                                        | summarize Max_Memory = max(CounterValue) by Computer, _ResourceId
+                                        | top 10 by Max_Memory desc nulls last
+                                        
+                                        //Top 10 computers with highest disk io from Perf table
+                                        Perf
+                                        | where ObjectName == "LogicalDisk" and CounterName == "Disk Transfers/sec"
+                                        | summarize Max_Disk_IO = max(CounterValue) by Computer, InstanceName
+                                        | top 10 by Max_Disk_IO desc nulls last
+                                        
+                                        //top 10 computers with most error and warning events from Event table
+                                        Event
+                                        | where EventLevelName == "Error" or EventLevelName  == "Warning"
+                                        | summarize count() by Computer
+                                        | top 10 by count_ desc nulls last
+                                                           
+                                        //Top 10 Computers with Application crashes for e.g. Teams app
+                                        Event
+                                        | where EventLog == "Application" and Source == "Application Error" and EventData contains "Teams"
+                                        | summarize count() by Computer
+                                        | top 10 by count_ desc nulls last
+                                                           
+                                        //Top 10 Computers with Application hangs for .e.g Outlook app
+                                        Event
+                                        | where EventLog == "Application" and Source == "Application Hang" and EventData has "OUTLOOK"
+                                        | summarize count() by Computer
+                                        | top 10 by count_ desc nulls last                   
                     """},
                   {"role": "user", "content": prompt}],
         temperature=0.7
