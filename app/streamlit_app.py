@@ -18,7 +18,7 @@ KUSTO_DATABASE = os.environ.get('KUSTO_DATABASE')
 # Configure OpenAI settings
 client = AzureOpenAI(
         api_key = os.environ.get('OPENAI_API_KEY').  # Your OpenAI API key
-        azure_endpoint= os.environ.get('OPENAI_API_Endpoint'),  # Your OpenAI resource endpoint
+        azure_endpoint = os.environ.get('OPENAI_API_Endpoint'),  # Your OpenAI resource endpoint
         api_version = os.environ.get('OPENAI_API_Version')
 )
 def run_openai(prompt, engine=GPT_ENGINE):
