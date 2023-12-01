@@ -145,15 +145,19 @@ if st.button("Submit") and kusto_cluster and kusto_database:
 
         if advanced_analysis:
             # Advanced analysis logic here, e.g., forecasting
-            try:
-                plt.figure()
-                plt.plot(kusto_response[x_column], kusto_response[y_column])
-                plt.xlabel(x_column)
-                plt.ylabel(y_column)
-                plt.title('Data Chart')
-                st.pyplot(plt)
-            except Exception as e:
-                st.error(f"An error occurred while creating the chart: {e}")
+        try:
+            # Assuming kusto_response.rows is a list of dictionaries
+            dates = [row['Date'] for row in kusto_response.rows]
+            values = [row['Value'] for row in kusto_response.rows]
+        
+            plt.figure()
+            plt.plot(dates, values)
+            plt.xlabel('Date')
+            plt.ylabel('Value')
+            plt.title('Data Over Time')
+            st.pyplot(plt)
+        except Exception as e:
+            st.error(f"An error occurred while creating the chart: {e}")
     else:
         st.write("An error occurred while executing the Kusto query.")
 
