@@ -25,7 +25,7 @@ def run_openai(prompt, engine=GPT_ENGINE):
   #  """Generate Kusto Query Language (KQL) queries using OpenAI's GPT-4.0 model."""
     response = client.chat.completions.create(
         model=engine,
-        messages=[{"role": "system", "content": f"""You are a helpful assistant that generates valid Kusto queries, make use of three table Event, Heartbeat and Perf, all at once or silo as per need. no additional explanation required, the comments starts with backslashes and no quotes in the query as the query will be directly executed in the Kusto explorer through, so additional comment or invalid character might result in error message
+        messages=[{"role": "system", "content": f"""You are a helpful assistant that generates valid Kusto queries, make use of three table Event, Heartbeat and Perf, all at once or silo as per need. no additional explanation required, the comments starts with backslashes and no single or double quotes in the query as the query will be directly executed in the Kusto explorer through, so additional comment or invalid character might result in error message
                       // List all known computers that didn't send a heartbeat in the last 24 hours from heartbeat table
 Heartbeat
 | summarize LastHeartbeat=max(TimeGenerated) by Computer
