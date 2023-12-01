@@ -11,7 +11,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Set your GPT Engine, Kusto Cluster, and Database here
-GPT_ENGINE = os.environ.get('OPENAI_API_KEY')
+GPT_ENGINE = os.environ.get('OPENAI_API_Engine')
 KUSTO_CLUSTER = os.environ.get('KUSTO_CLUSTER')  # Add your Kusto cluster URL here
 KUSTO_DATABASE = os.environ.get('KUSTO_DATABASE')
 
