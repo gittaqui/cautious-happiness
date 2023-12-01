@@ -138,16 +138,22 @@ if st.button("Submit") and kusto_cluster and kusto_database:
     if kusto_response is not None:
         st.write("Query Results:")
         st.dataframe(kusto_response)
+        # Let the user select the columns for X and Y axes
+        all_columns = kusto_response.columns.tolist()
+        x_column = st.selectbox('Select X-axis column', all_columns, index=0)
+        y_column = st.selectbox('Select Y-axis column', all_columns, index=1)
 
         if advanced_analysis:
             # Advanced analysis logic here, e.g., forecasting
-            st.write("Advanced Analysis:")
-            plt.figure()
-            plt.plot(kusto_response['Date'], kusto_response['Value'])
-            plt.xlabel('Date')
-            plt.ylabel('Value')
-            plt.title('Data Over Time')
-            st.pyplot(plt)
+            try:
+                plt.figure()
+                plt.plot(kusto_response[x_column], kusto_response[y_column])
+                plt.xlabel(x_column)
+                plt.ylabel(y_column)
+                plt.title('Data Chart')
+                st.pyplot(plt)
+            except Exception as e:
+                st.error(f"An error occurred while creating the chart: {e}")
     else:
         st.write("An error occurred while executing the Kusto query.")
 
